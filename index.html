@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UF–UB 标准顺序 Mann–Kendall 检验 V13</title>
+<title>UF–UB 标准顺序 Mann–Kendall 检验 V14</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#182238;font-family:Arial,"Microsoft YaHei",sans-serif}
@@ -20,7 +20,7 @@ button{padding:10px 15px;margin:12px 6px 0 0;border:0;border-radius:8px;backgrou
 </head>
 <body><main class="box">
 <h1>UF–UB 顺序 Mann–Kendall 突变检验</h1>
-<p>文件只在当前浏览器本地处理，不会上传到服务器。</p>
+<p>文件只在当前浏览器本地处理，不会上传到服务器。<span class="hint">当前版本 V14：两列纵向表优先读取第一列时间和第二列数据。</span></p>
 <div id="drop" class="drop">把 Excel 文件拖到这里<span class="hint">支持 .xlsx、.xls、.csv；纵向表格为“第一列时间、第二列数据”，横向表格也支持有或没有首列标签；相等值按 0 处理。</span></div>
 <section class="method"><h2>计算方法说明</h2>
 <p><b>1. 计算 UF：</b>本网页采用 SQMK 中的“累计计数写法”：从第 2 个数据开始，把当前值与前面所有值比较。当前值更大记 1，更小或相等在当前计数中记 0；再把每一步的计数累加。</p>
@@ -51,7 +51,7 @@ const el=id=>document.getElementById(id),drop=el("drop");let out=[],labels=[];
 ["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("over")}));
 ["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("over")}));
 drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)run(f)});
-function read(rows){if(!rows.length)return[];const h=rows[0].map(x=>String(x??"")),a=[],dataRows=rows.slice(1);const verticalHeader=/(时间|日期|年份|年|year)/i.test(h[0])&&/(数据|气温|温度|数值|值|value|o3)/i.test(h[1]);const verticalPairs=dataRows.slice(0,10).filter(r=>r.length>1&&Number.isFinite(+r[0])&&Number.isFinite(+r[1])).length;const vertical=verticalHeader||(verticalPairs>=2&&!h.slice(0,2).some(x=>/日|月/.test(x)));if(vertical){dataRows.forEach(r=>{if(r.length>1&&String(r[0]).trim()!==""&&Number.isFinite(+r[1]))a.push([String(r[0]),+r[1]])});return a}const timeHeaders=h.filter(x=>/日|月|年|时/.test(x)||Number.isFinite(+x)).length;const horizontal=h.length>2&&timeHeaders>=Math.max(3,Math.ceil(h.length*.6));if(horizontal){const r=dataRows.find(r=>r.filter(v=>Number.isFinite(+v)).length>=2);if(r){const hasLabel=!Number.isFinite(+r[0]);const start=hasLabel?1:0;for(let i=start;i<Math.min(h.length,r.length);i++)if(Number.isFinite(+r[i]))a.push([h[i]||i+1,+r[i]])}}else dataRows.forEach(r=>{if(r.length>1&&Number.isFinite(+r[1]))a.push([String(r[0]),+r[1]])});return a}
+function read(rows){if(!rows.length)return[];const h=rows[0].map(x=>String(x??"")),a=[],dataRows=rows.slice(1);const verticalHeader=/(时间|日期|年份|年|year)/i.test(h[0])&&/(数据|气温|温度|数值|值|value|o3)/i.test(h[1]);const verticalPairs=dataRows.slice(0,10).filter(r=>r.length>1&&Number.isFinite(+r[0])&&Number.isFinite(+r[1])).length;const vertical=h.length<=2||verticalHeader||(verticalPairs>=2&&!h.slice(0,2).some(x=>/日|月/.test(x)));if(vertical){dataRows.forEach(r=>{if(r.length>1&&String(r[0]).trim()!==""&&Number.isFinite(+r[1]))a.push([String(r[0]),+r[1]])});return a}const timeHeaders=h.filter(x=>/日|月|年|时/.test(x)||Number.isFinite(+x)).length;const horizontal=h.length>2&&timeHeaders>=Math.max(3,Math.ceil(h.length*.6));if(horizontal){const r=dataRows.find(r=>r.filter(v=>Number.isFinite(+v)).length>=2);if(r){const hasLabel=!Number.isFinite(+r[0]);const start=hasLabel?1:0;for(let i=start;i<Math.min(h.length,r.length);i++)if(Number.isFinite(+r[i]))a.push([h[i]||i+1,+r[i]])}}else dataRows.forEach(r=>{if(r.length>1&&Number.isFinite(+r[1]))a.push([String(r[0]),+r[1]])});return a}
 function mk(a){const n=a.length,uf=[],ur=[];let t=0;for(let i=0;i<n;i++){for(let j=0;j<i;j++)if(a[i][1]>a[j][1])t++;const k=i+1;uf[i]=k<2?0:(t-k*(k-1)/4)/Math.sqrt(k*(k-1)*(2*k+5)/72)}const b=[...a].reverse();t=0;for(let i=0;i<n;i++){for(let j=0;j<i;j++)if(b[i][1]>b[j][1])t++;const k=i+1;ur[i]=k<2?0:(t-k*(k-1)/4)/Math.sqrt(k*(k-1)*(2*k+5)/72)}return[uf,ur.reverse().map(v=>-v)]}
 function run(file){el("msg").textContent="正在读取…";const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:"array"}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""}),a=read(rows);if(a.length<2)throw Error("没有找到至少两项有效数据");const [uf,ub]=mk(a);labels=a.map(x=>x[0]);out=a.map((x,i)=>[x[0],x[1],uf[i],ub[i],1.96,-1.96]);show();el("msg").textContent="处理完成："+a.length+" 个数据点"}catch(x){el("msg").textContent="处理失败："+x.message}};r.readAsArrayBuffer(file)}
 function show(){el("result").hidden=false;el("n").textContent=out.length;const i=out.findIndex(x=>x[2]>1.96);el("trend").textContent=out.at(-1)[2]>1.96?"显著上升":out.at(-1)[2]<-1.96?"显著下降":"未达显著";el("cross").textContent=i>=0?labels[i]:"未越过";el("tbody").innerHTML=out.map(r=>"<tr>"+r.map((v,i)=>"<td>"+(i<2?v:Number(v).toFixed(4))+"</td>").join("")+"</tr>").join("");chart()}
