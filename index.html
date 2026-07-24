@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UF–UB 突变检验（坐标轴优化版 V3）</title>
+<title>UF–UB 突变检验（图例下移版 V4）</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#182238;font-family:Arial,"Microsoft YaHei",sans-serif}
@@ -47,7 +47,7 @@ function chart(){const c=el("chart"),x=c.getContext("2d"),w=c.width=c.clientWidt
   x.font="13px Arial, Microsoft YaHei";x.textAlign="center";x.fillStyle="#3b4656";const tickCount=Math.min(10,out.length),used=new Set();for(let j=0;j<tickCount;j++){const i=Math.round(j*(out.length-1)/Math.max(1,tickCount-1));if(used.has(i))continue;used.add(i);x.save();x.translate(X(i),H-B+23);x.rotate(-Math.PI/5);x.fillText(String(out[i][0]),0,0);x.restore()}
   x.font="15px Arial, Microsoft YaHei";x.fillText("时间",L+plotW/2,H-12);x.save();x.translate(22,T+plotH/2);x.rotate(-Math.PI/2);x.fillText("统计量",0,0);x.restore();
   x.setLineDash([]);[["#2864d7",2,"UF"],["#ed7a2f",3,"UB"]].forEach(z=>{x.strokeStyle=z[0];x.lineWidth=2.5;x.beginPath();out.forEach((r,i)=>i?x.lineTo(X(i),Y(r[z[1]])):x.moveTo(X(i),Y(r[z[1]])));x.stroke()});
-  x.font="14px Arial, Microsoft YaHei";x.textAlign="left";const legend=[["#2864d7","UF"],["#ed7a2f","UB"],["#858585","+1.96"],["#aaa","-1.96"]],itemW=105,lx=(W-itemW*legend.length)/2,ly=67;legend.forEach((z,i)=>{const xx=lx+i*itemW;x.strokeStyle=z[0];x.lineWidth=2.5;x.setLineDash(i>1?[7,5]:[]);x.beginPath();x.moveTo(xx,ly);x.lineTo(xx+32,ly);x.stroke();x.setLineDash([]);x.fillStyle="#222";x.fillText(z[1],xx+40,ly+5)});
+  x.font="14px Arial, Microsoft YaHei";x.textAlign="left";const legend=[["#2864d7","UF"],["#ed7a2f","UB"],["#858585","+1.96"],["#aaa","-1.96"]],itemW=105,lx=(W-itemW*legend.length)/2,ly=82;legend.forEach((z,i)=>{const xx=lx+i*itemW;x.strokeStyle=z[0];x.lineWidth=2.5;x.setLineDash(i>1?[7,5]:[]);x.beginPath();x.moveTo(xx,ly);x.lineTo(xx+32,ly);x.stroke();x.setLineDash([]);x.fillStyle="#222";x.fillText(z[1],xx+40,ly+5)});
 }
 el("xlsx").onclick=()=>{const ws=XLSX.utils.aoa_to_sheet([["时间","数据","UF","UB","+1.96","-1.96"],...out]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"UF-UB");XLSX.writeFile(wb,"UF_UB结果.xlsx")};
 el("png").onclick=()=>{const a=document.createElement("a");a.href=el("chart").toDataURL("image/png");a.download="UF_UB图.png";a.click()};
