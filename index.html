@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UF–UB 突变检验（拖拽版，坐标轴版 V2）</title>
+<title>UF–UB 突变检验（坐标轴优化版 V3）</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#182238;font-family:Arial,"Microsoft YaHei",sans-serif}
@@ -11,7 +11,7 @@
 h1{margin-top:0}.drop{padding:58px 20px;text-align:center;border:3px dashed #7ea8ee;border-radius:14px;background:#f7fbff;font-size:21px}
 .drop.over{background:#e5f0ff;border-color:#2864d7}.hint{display:block;margin-top:13px;font-size:14px;color:#68758a}
 #msg{margin:16px 0;color:#167447}.stats{display:flex;gap:12px;flex-wrap:wrap}.stat{flex:1;min-width:180px;padding:14px;background:#f5f7fb;border-radius:10px}.stat b{display:block;font-size:20px;margin-top:5px}
-canvas{display:block;width:100%;height:520px;margin-top:18px;border:1px solid #e6ebf2;border-radius:10px}.table{overflow:auto;max-height:380px;margin-top:18px}
+canvas{display:block;width:100%;height:560px;margin-top:18px;border:1px solid #e6ebf2;border-radius:10px}.table{overflow:auto;max-height:380px;margin-top:18px}
 table{border-collapse:collapse;width:100%}th,td{padding:8px 12px;border-bottom:1px solid #e9edf3;text-align:right;white-space:nowrap}th{background:#f5f7fb}th:first-child,td:first-child{text-align:left}
 button{padding:10px 15px;margin:12px 6px 0 0;border:0;border-radius:8px;background:#2864d7;color:#fff;cursor:pointer}
 </style>
@@ -21,7 +21,7 @@ button{padding:10px 15px;margin:12px 6px 0 0;border:0;border-radius:8px;backgrou
 <p>文件只在当前浏览器本地处理，不会上传到服务器。</p>
 <div id="drop" class="drop">把 Excel 文件拖到这里<span class="hint">支持 .xlsx、.xls、.csv；第一行为表头、第一列时间、第二列数据，也支持横向表格。</span></div>
 <div id="msg"></div><section id="result" hidden><div class="stats"><div class="stat">数据点数<b id="n">—</b></div><div class="stat">趋势判断<b id="trend">—</b></div><div class="stat">首次越过 ±1.96<b id="cross">—</b></div></div>
-<button id="xlsx">下载结果 Excel</button><button id="png">下载图像 PNG</button><canvas id="chart" width="1200" height="520"></canvas>
+<button id="xlsx">下载结果 Excel</button><button id="png">下载图像 PNG</button><canvas id="chart" width="1200" height="560"></canvas>
 <div class="table"><table><thead><tr><th>时间</th><th>数据</th><th>UF</th><th>UB</th><th>+1.96</th><th>-1.96</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
 </main>
 <script>
@@ -33,21 +33,21 @@ function read(rows){if(!rows.length)return[];const h=rows[0].map(x=>String(x??""
 function mk(a){const n=a.length,uf=[0],ur=[0];let s=0,t=0;for(let k=1;k<n;k++){for(let i=0;i<k;i++){s+=a[k][1]>a[i][1]?1:a[k][1]<a[i][1]?-1:0}uf[k]=s/Math.sqrt(k*(k+1)*(2*k+5)/18)}const b=[...a].reverse();for(let k=1;k<n;k++){for(let i=0;i<k;i++){t+=b[k][1]>b[i][1]?1:b[k][1]<b[i][1]?-1:0}ur[k]=t/Math.sqrt(k*(k+1)*(2*k+5)/18)}return[uf,ur.reverse().map(v=>-v)]}
 function run(file){el("msg").textContent="正在读取…";const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:"array"}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""}),a=read(rows);if(a.length<2)throw Error("没有找到至少两项有效数据");const [uf,ub]=mk(a);labels=a.map(x=>x[0]);out=a.map((x,i)=>[x[0],x[1],uf[i],ub[i],1.96,-1.96]);show();el("msg").textContent="处理完成："+a.length+" 个数据点"}catch(x){el("msg").textContent="处理失败："+x.message}};r.readAsArrayBuffer(file)}
 function show(){el("result").hidden=false;el("n").textContent=out.length;const i=out.findIndex(x=>x[2]>1.96);el("trend").textContent=out.at(-1)[2]>1.96?"显著上升":out.at(-1)[2]<-1.96?"显著下降":"未达显著";el("cross").textContent=i>=0?labels[i]:"未越过";el("tbody").innerHTML=out.map(r=>"<tr>"+r.map((v,i)=>"<td>"+(i<2?v:Number(v).toFixed(4))+"</td>").join("")+"</tr>").join("");chart()}
-function chart(){const c=el("chart"),x=c.getContext("2d"),w=c.width=c.clientWidth*2,h=c.height=520*2;x.scale(2,2);const W=w/2,H=h/2;
+function chart(){const c=el("chart"),x=c.getContext("2d"),w=c.width=c.clientWidth*2,h=c.height=560*2;x.scale(2,2);const W=w/2,H=h/2;
   x.fillStyle="#fff";x.fillRect(0,0,W,H);
   const all=out.flatMap(r=>[r[2],r[3],1.96,-1.96]),mi=Math.min(...all)-.3,ma=Math.max(...all)+.3;
-  const L=78,R=24,T=58,B=68,plotW=W-L-R,plotH=H-T-B;
+  const L=78,R=30,T=105,B=82,plotW=W-L-R,plotH=H-T-B;
   const X=i=>L+i*(plotW/(Math.max(1,out.length-1))),Y=v=>T+(ma-v)*plotH/(ma-mi);
-  x.font="14px Arial, Microsoft YaHei";x.textAlign="center";x.fillStyle="#111";x.fillText("UF-UB 顺序 Mann-Kendall 检验",W/2,28);
+  x.font="22px Arial, Microsoft YaHei";x.textAlign="center";x.fillStyle="#111";x.fillText("UF-UB 顺序 Mann-Kendall 检验",W/2,32);
   x.strokeStyle="#d6dce5";x.lineWidth=1;x.setLineDash([3,3]);
   const step=Math.max(1,Math.ceil((ma-mi)/6));for(let v=Math.ceil(mi/step)*step;v<=ma;v+=step){x.beginPath();x.moveTo(L,Y(v));x.lineTo(W-R,Y(v));x.stroke();x.fillStyle="#3b4656";x.textAlign="right";x.fillText(v.toFixed(v%1?1:0),L-9,Y(v)+5)}
   [1.96,-1.96].forEach(v=>{x.strokeStyle="#858585";x.lineWidth=1.8;x.setLineDash([7,5]);x.beginPath();x.moveTo(L,Y(v));x.lineTo(W-R,Y(v));x.stroke()});
   x.strokeStyle="#b8c0cc";x.lineWidth=1;x.setLineDash([]);x.beginPath();x.moveTo(L,Y(0));x.lineTo(W-R,Y(0));x.stroke();
   x.strokeStyle="#222";x.beginPath();x.moveTo(L,T);x.lineTo(L,H-B);x.lineTo(W-R,H-B);x.stroke();
-  x.textAlign="center";x.fillStyle="#3b4656";const every=Math.max(1,Math.ceil(out.length/12));out.forEach((r,i)=>{if(i%every===0||i===out.length-1){x.save();x.translate(X(i),H-B+21);x.rotate(-Math.PI/5);x.fillText(String(r[0]),0,0);x.restore()}});
-  x.fillText("时间",L+plotW/2,H-10);x.save();x.translate(20,T+plotH/2);x.rotate(-Math.PI/2);x.fillText("统计量",0,0);x.restore();
+  x.font="13px Arial, Microsoft YaHei";x.textAlign="center";x.fillStyle="#3b4656";const tickCount=Math.min(10,out.length),used=new Set();for(let j=0;j<tickCount;j++){const i=Math.round(j*(out.length-1)/Math.max(1,tickCount-1));if(used.has(i))continue;used.add(i);x.save();x.translate(X(i),H-B+23);x.rotate(-Math.PI/5);x.fillText(String(out[i][0]),0,0);x.restore()}
+  x.font="15px Arial, Microsoft YaHei";x.fillText("时间",L+plotW/2,H-12);x.save();x.translate(22,T+plotH/2);x.rotate(-Math.PI/2);x.fillText("统计量",0,0);x.restore();
   x.setLineDash([]);[["#2864d7",2,"UF"],["#ed7a2f",3,"UB"]].forEach(z=>{x.strokeStyle=z[0];x.lineWidth=2.5;x.beginPath();out.forEach((r,i)=>i?x.lineTo(X(i),Y(r[z[1]])):x.moveTo(X(i),Y(r[z[1]])));x.stroke()});
-  x.font="13px Arial";x.textAlign="left";const legend=[["#2864d7","UF"],["#ed7a2f","UB"],["#858585","+1.96"],["#aaa","-1.96"]];let lx=W/2-150;legend.forEach((z,i)=>{const xx=lx+i*75;x.strokeStyle=z[0];x.lineWidth=2;x.setLineDash(i>1?[6,4]:[]);x.beginPath();x.moveTo(xx,T-26);x.lineTo(xx+23,T-26);x.stroke();x.setLineDash([]);x.fillStyle="#222";x.fillText(z[1],xx+29,T-21)});
+  x.font="14px Arial, Microsoft YaHei";x.textAlign="left";const legend=[["#2864d7","UF"],["#ed7a2f","UB"],["#858585","+1.96"],["#aaa","-1.96"]],itemW=105,lx=(W-itemW*legend.length)/2,ly=67;legend.forEach((z,i)=>{const xx=lx+i*itemW;x.strokeStyle=z[0];x.lineWidth=2.5;x.setLineDash(i>1?[7,5]:[]);x.beginPath();x.moveTo(xx,ly);x.lineTo(xx+32,ly);x.stroke();x.setLineDash([]);x.fillStyle="#222";x.fillText(z[1],xx+40,ly+5)});
 }
 el("xlsx").onclick=()=>{const ws=XLSX.utils.aoa_to_sheet([["时间","数据","UF","UB","+1.96","-1.96"],...out]),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"UF-UB");XLSX.writeFile(wb,"UF_UB结果.xlsx")};
 el("png").onclick=()=>{const a=document.createElement("a");a.href=el("chart").toDataURL("image/png");a.download="UF_UB图.png";a.click()};
