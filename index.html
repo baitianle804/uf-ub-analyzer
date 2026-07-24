@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UF–UB 标准顺序 Mann–Kendall 检验 V7</title>
+<title>UF–UB 标准顺序 Mann–Kendall 检验 V9</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f4f7fb;color:#182238;font-family:Arial,"Microsoft YaHei",sans-serif}
@@ -15,7 +15,7 @@ canvas{display:block;width:100%;height:560px;margin-top:18px;border:1px solid #e
 table{border-collapse:collapse;width:100%}th,td{padding:8px 12px;border-bottom:1px solid #e9edf3;text-align:right;white-space:nowrap}th{background:#f5f7fb}th:first-child,td:first-child{text-align:left}
 button{padding:10px 15px;margin:12px 6px 0 0;border:0;border-radius:8px;background:#2864d7;color:#fff;cursor:pointer}
 .method{margin-top:18px;padding:20px 22px;border:1px solid #dfe7f2;border-radius:12px;background:#fbfcff;color:#2f3d52;line-height:1.75;font-size:14px}.method h2{margin:0 0 8px;font-size:18px;color:#182238}.method p{margin:7px 0}.formula{padding:10px 13px;margin:10px 0;background:#f1f5fb;border-left:4px solid #7ea8ee;border-radius:6px;font-family:Consolas,"Microsoft YaHei",monospace;color:#263b5b}
-.file-info{margin:10px 0 0;padding:10px 12px;background:#f1f5fb;border-radius:8px;color:#2f3d52;font-size:13px;line-height:1.6;word-break:break-all}
+.refs{list-style:none;margin:12px 0 0;padding:0;counter-reset:ref}.refs li{counter-increment:ref;position:relative;margin:10px 0;padding:12px 16px 12px 48px;background:#fff;border:1px solid #dfe7f2;border-radius:10px;box-shadow:0 2px 8px #1822380b}.refs li::before{content:counter(ref);position:absolute;left:14px;top:12px;width:24px;height:24px;line-height:24px;text-align:center;border-radius:50%;background:#2864d7;color:#fff;font-weight:700}.refs a{color:#2864d7}.ref-main{display:block;font-weight:600;color:#23324a;line-height:1.55}.ref-note{display:block;margin-top:3px;color:#58677d;line-height:1.55}.math{font-family:Consolas,"Segoe UI Symbol","Microsoft YaHei",sans-serif;white-space:nowrap;color:#263b5b}
 </style>
 </head>
 <body><main class="box">
@@ -30,10 +30,19 @@ button{padding:10px 15px;margin:12px 6px 0 0;border:0;border-radius:8px;backgrou
 <div class="formula">带符号统计量：Sᵢ = 2tᵢ − i(i−1)/2<br>本网页直接使用：tᵢ − i(i−1)/4，以及 Var(tᵢ) = i(i−1)(2i+5)/72</div>
 <p><b>2. 计算 UB：</b>将数据从后往前倒序，用同样的方法计算，再反向排列并取负号。</p>
 <p><b>3. 判断显著性：</b>图中的 +1.96 和 −1.96 是 5% 显著性水平参考线；UF 或 UB 超过参考线，表示该阶段趋势达到显著水平。</p>
-<p><b>方法来源：</b>总体 Mann–Kendall 思想源自 Mann（1945）和 Kendall（1975）；UF–UB 的顺序计算按 Sayemuzzaman 与 Jha（2013）介绍的 Sequential Mann–Kendall（SQMK）步骤实现；符号函数、相等值和并列值处理参考 Pohlert 的方法说明。</p>
-<p><a href="https://www.jstor.org/stable/1907187" target="_blank" rel="noopener">Mann（1945）原始论文</a>　<a href="https://www.appstate.edu/~perrylb/Courses/Peru/5015/Readings/Sayemuzzaman%26Jha_2013.pdf" target="_blank" rel="noopener">Sayemuzzaman &amp; Jha（2013）SQMK 方法</a>　<a href="https://cran.r-project.org/web/packages/trend/vignettes/trend.pdf" target="_blank" rel="noopener">Pohlert：Mann–Kendall 公式说明</a></p>
+<p><b>方法来源说明：</b>本网页按“经典 MK 基础 → SQMK 原始方法 → 公式和应用参考”的顺序列出文献。经典 Mann–Kendall 的总体检验思想来自 Mann（1945），Kendall（1975）对秩统计方法进行了系统化整理；Sneyers（1990）提出了用于序列趋势和近似突变点识别的顺序 Mann–Kendall（SQMK）思想。本网页据此计算前向 UF，并将倒序计算结果取负号得到 UB。</p>
+<p>需要注意：Pohlert 的《Non-Parametric Trend Tests and Change-Point Detection》是非参数趋势与突变检验的方法说明文档，主要帮助理解经典 MK 及相关方法，并不是 UF–UB/SQMK 公式的原始出处。</p>
+<ol class="refs">
+<li><span class="ref-main"><a href="https://www.jstor.org/stable/1907187" target="_blank" rel="noopener">Mann（1945）原始论文</a></span><span class="ref-note">经典 Mann–Kendall 趋势检验的奠基性文献。</span></li>
+<li><span class="ref-main"><a href="https://search.worldcat.org/title/Rank-correlation-methods/oclc/3827024" target="_blank" rel="noopener">Kendall（1975）：<i>Rank Correlation Methods</i></a></span><span class="ref-note">对秩相关和 Kendall 非参数检验进行了系统化整理。</span></li>
+<li><span class="ref-main"><a href="https://library.wmo.int/viewer/30743" target="_blank" rel="noopener">Sneyers（1990）：On the Statistical Analysis of Series of Observations，WMO Technical Note No.143</a></span><span class="ref-note">SQMK/UF–UB 顺序方法的原始权威来源。</span></li>
+<li><span class="ref-main"><a href="https://www.journalcra.com/sites/default/files/issue-pdf/4972.pdf" target="_blank" rel="noopener">Bisai et al.（2014）：Application of Sequential Mann-Kendall Test for Detection of Approximate Significant Change Point in Surface Air Temperature</a></span><span class="ref-note">对 <span class="math">nᵢ</span>、<span class="math">tᵢ</span>、<span class="math">E(tᵢ)</span>、<span class="math">Var(tᵢ)</span> 和 <span class="math">u(tᵢ)</span> 等 SQMK 公式进行了列示和应用。</span></li>
+<li><span class="ref-main"><a href="https://www.appstate.edu/~perrylb/Courses/Peru/5015/Readings/Sayemuzzaman%26Jha_2013.pdf" target="_blank" rel="noopener">Sayemuzzaman &amp; Jha（2013）</a></span><span class="ref-note">SQMK 在气候时间序列中的应用示例，不作为 SQMK 的最初提出文献。</span></li>
+<li><span class="ref-main"><a href="https://cran.r-project.org/web/packages/trend/vignettes/trend.pdf" target="_blank" rel="noopener">Pohlert：Non-Parametric Trend Tests and Change-Point Detection</a></span><span class="ref-note">非参数趋势和突变检验的综合说明，主要用于理解经典 MK、季节性 MK 及其他相关检验。</span></li>
+<li><span class="ref-main"><a href="https://rdrr.io/cran/trendchange/man/sqmk.html" target="_blank" rel="noopener">R trendchange::sqmk 函数说明</a></span><span class="ref-note">用于核对 SQMK 正向、反向序列和曲线交点的程序实现。</span></li>
+</ol>
 </section>
-<div id="msg"></div><div id="fileInfo" class="file-info">尚未读取文件</div><section id="result" hidden><div class="stats"><div class="stat">数据点数<b id="n">—</b></div><div class="stat">趋势判断<b id="trend">—</b></div><div class="stat">首次越过 ±1.96<b id="cross">—</b></div></div>
+<div id="msg"></div><section id="result" hidden><div class="stats"><div class="stat">数据点数<b id="n">—</b></div><div class="stat">趋势判断<b id="trend">—</b></div><div class="stat">首次越过 ±1.96<b id="cross">—</b></div></div>
 <button id="xlsx">下载结果 Excel</button><button id="png">下载图像 PNG</button><canvas id="chart" width="1200" height="560"></canvas>
 <div class="table"><table><thead><tr><th>时间</th><th>数据</th><th>UF</th><th>UB</th><th>+1.96</th><th>-1.96</th></tr></thead><tbody id="tbody"></tbody></table></div></section>
 </main>
@@ -42,53 +51,9 @@ const el=id=>document.getElementById(id),drop=el("drop");let out=[],labels=[];
 ["dragenter","dragover"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.add("over")}));
 ["dragleave","drop"].forEach(t=>drop.addEventListener(t,e=>{e.preventDefault();drop.classList.remove("over")}));
 drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)run(f)});
-function isNum(v){return v!==null&&v!==undefined&&String(v).trim()!==""&&Number.isFinite(Number(v))}
-function text(v){return v===null||v===undefined?"":String(v).trim()}
-function read(rows){
-  if(!rows.length)return{data:[],layout:"未识别"};
-  const rs=rows.map(r=>Array.isArray(r)?r:[]);
-  while(rs.length&&rs.at(-1).every(v=>text(v)===""))rs.pop();
-  const first=rs[0]||[],second=rs[1]||[],width=Math.max(0,...rs.map(r=>r.length));
-  const firstNums=first.slice(1).filter(isNum).length,secondNums=second.slice(1).filter(isNum).length;
-  // 横向表：第一行是时间/年份，第二行是数据
-  if(width>=3&&firstNums>=2&&secondNums>=2){
-    const data=[];
-    for(let i=1;i<width;i++)if(isNum(second[i]))data.push([text(first[i])||String(i),Number(second[i])]);
-    if(data.length>=2)return{data,layout:"横向"};
-  }
-  // 纵向表：第一行表头，后续行第一列时间、第二列数据
-  const data=[];
-  for(const r of rs.slice(1)){
-    if(r.length>=2&&isNum(r[1]))data.push([text(r[0])||String(data.length+1),Number(r[1])]);
-  }
-  return{data,layout:"纵向"};
-}
+function read(rows){if(!rows.length)return[];const h=rows[0].map(x=>String(x??"")),a=[];if(h.length>2&&h.slice(1).some(x=>/日|月|年|时/.test(x))){const r=rows.find(r=>r.slice(1).some(v=>Number.isFinite(+v)));if(r)r.slice(1).forEach((v,i)=>{if(Number.isFinite(+v))a.push([h[i+1]||i+1,+v])})}else rows.slice(1).forEach(r=>{if(r.length>1&&Number.isFinite(+r[1]))a.push([String(r[0]),+r[1]])});return a}
 function mk(a){const n=a.length,uf=[],ur=[];let t=0;for(let i=0;i<n;i++){for(let j=0;j<i;j++)if(a[i][1]>a[j][1])t++;const k=i+1;uf[i]=k<2?0:(t-k*(k-1)/4)/Math.sqrt(k*(k-1)*(2*k+5)/72)}const b=[...a].reverse();t=0;for(let i=0;i<n;i++){for(let j=0;j<i;j++)if(b[i][1]>b[j][1])t++;const k=i+1;ur[i]=k<2?0:(t-k*(k-1)/4)/Math.sqrt(k*(k-1)*(2*k+5)/72)}return[uf,ur.reverse().map(v=>-v)]}
-function run(file){
-  el("result").hidden=true;out=[];labels=[];
-  el("msg").textContent="正在读取…";
-  el("fileInfo").textContent="文件："+file.name+"（正在识别…）";
-  const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const wb=XLSX.read(e.target.result,{type:"array"});
-      const sheetName=wb.SheetNames[0];
-      const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{header:1,defval:""});
-      const parsed=read(rows),a=parsed.data;
-      if(a.length<2)throw Error("没有找到至少两项有效数据；请确认第一张表的第一列是时间、第二列是数据");
-      const [uf,ub]=mk(a);
-      labels=a.map(x=>x[0]);
-      out=a.map((x,i)=>[x[0],x[1],uf[i],ub[i],1.96,-1.96]);
-      el("fileInfo").textContent="文件："+file.name+"｜工作表："+sheetName+"｜识别方向："+parsed.layout+"｜有效数据："+a.length+" 行";
-      show();
-      el("msg").textContent="处理完成："+a.length+" 个数据点";
-    }catch(x){
-      el("fileInfo").textContent="文件："+file.name;
-      el("msg").textContent="处理失败："+x.message;
-    }
-  };
-  r.readAsArrayBuffer(file);
-}
+function run(file){el("msg").textContent="正在读取…";const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:"array"}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:""}),a=read(rows);if(a.length<2)throw Error("没有找到至少两项有效数据");const [uf,ub]=mk(a);labels=a.map(x=>x[0]);out=a.map((x,i)=>[x[0],x[1],uf[i],ub[i],1.96,-1.96]);show();el("msg").textContent="处理完成："+a.length+" 个数据点"}catch(x){el("msg").textContent="处理失败："+x.message}};r.readAsArrayBuffer(file)}
 function show(){el("result").hidden=false;el("n").textContent=out.length;const i=out.findIndex(x=>x[2]>1.96);el("trend").textContent=out.at(-1)[2]>1.96?"显著上升":out.at(-1)[2]<-1.96?"显著下降":"未达显著";el("cross").textContent=i>=0?labels[i]:"未越过";el("tbody").innerHTML=out.map(r=>"<tr>"+r.map((v,i)=>"<td>"+(i<2?v:Number(v).toFixed(4))+"</td>").join("")+"</tr>").join("");chart()}
 function chart(){const c=el("chart"),x=c.getContext("2d"),w=c.width=c.clientWidth*2,h=c.height=560*2;x.scale(2,2);const W=w/2,H=h/2;
   x.fillStyle="#fff";x.fillRect(0,0,W,H);
